@@ -2620,6 +2620,8 @@ type Mutation {
   shippingZoneDelete(id: ID!): ShippingZoneDelete
   shippingZoneBulkDelete(ids: [ID]!): ShippingZoneBulkDelete
   shippingZoneUpdate(id: ID!, input: ShippingZoneUpdateInput!): ShippingZoneUpdate
+  reservationCreate(input: ReservationCreateInput!): ReservationCreate
+  reservationsRemove(input: ReservationsRemoveInput!): ReservationsRemove
   productAttributeAssign(operations: [ProductAttributeAssignInput]!, productTypeId: ID!): ProductAttributeAssign
   productAttributeUnassign(attributeIds: [ID]!, productTypeId: ID!): ProductAttributeUnassign
   categoryCreate(input: CategoryInput!, parent: ID): CategoryCreate
@@ -4531,6 +4533,11 @@ type RefreshToken {
   accountErrors: [AccountError!]!
 }
 
+type RemovedReservation {
+  productVariant: ProductVariant
+  quantity: Int
+}
+
 input ReorderInput {
   id: ID!
   sortOrder: Int
@@ -4550,6 +4557,54 @@ type RequestEmailChange {
 type RequestPasswordReset {
   errors: [Error!]! @deprecated(reason: "Use typed errors with error codes. This field will be removed after 2020-07-31.")
   accountErrors: [AccountError!]!
+}
+
+type Reservation implements Node {
+  expires: DateTime!
+  productVariant: ProductVariant!
+  quantity: Int!
+  id: ID!
+}
+
+type ReservationCreate {
+  errors: [Error!]! @deprecated(reason: "Use typed errors with error codes. This field will be removed after 2020-07-31.")
+  reservation: Reservation
+  reservationErrors: [ReservationError!]!
+}
+
+input ReservationCreateInput {
+  countryCode: CountryCode!
+  quantity: Int!
+  variantId: ID!
+}
+
+type ReservationError {
+  field: String
+  message: String
+  code: ReservationErrorCode!
+  variant: ID
+}
+
+enum ReservationErrorCode {
+  GRAPHQL_ERROR
+  INVALID_COUNTRY_CODE
+  INSUFFICIENT_STOCK
+  NOT_FOUND
+  QUANTITY_GREATER_THAN_LIMIT
+  TOO_MANY_RESERVATIONS
+  UNIQUE
+  ZERO_QUANTITY
+}
+
+type ReservationsRemove {
+  errors: [Error!]! @deprecated(reason: "Use typed errors with error codes. This field will be removed after 2020-07-31.")
+  removedReservations: [RemovedReservation]
+  reservationsErrors: [ReservationError!]!
+}
+
+input ReservationsRemoveInput {
+  countryCode: CountryCode!
+  variantsIds: [ID]!
 }
 
 type Sale implements Node {
